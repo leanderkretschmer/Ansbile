@@ -1,12 +1,12 @@
 # vm_config.yml
-vm_name: "Debian12VM"
-os_type: "Debian_64"
-memory: 4096
-cpus: 2
-vram: 128
-nic: "bridged"
-vdi_size: 50000
-iso_url: "https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-12.1.0-amd64-netinst.iso"
-iso_download_path: "C:/VirtualBox VMs/Debian12VM/debian-12.iso"
-disk_filename: "C:/VirtualBox VMs/Debian12VM/Debian12VM.vdi"
+vm_name: "Debian12VM" # Name der VM
+os_type: "Debian_64" # Typ des Betriebssystems
+memory: 4096 # RAM in MB
+cpus: 2 # Anzahl der Prozessoren
+vram: 128 # Grafikspeicher
+nic: "bridged" # Netzwerkadapter
+vdi_size: 50000 # Speicher in MB
+iso_url: "https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-12.1.0-amd64-netinst.iso" # ISO Download
+iso_download_path: "C:/VirtualBox VMs/Debian12VM/debian-12.iso" # Temporärer Speicherort der ISO
+disk_filename: "C:/VirtualBox VMs/Debian12VM/Debian12VM.vdi" # Name des Disk Image
 preseed_file: "./preseed.cfg"  # Der Pfad zur Preseed-Datei auf dem Ansible-Host

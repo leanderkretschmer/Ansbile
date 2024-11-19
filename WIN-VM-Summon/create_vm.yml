@@ -6,22 +6,22 @@
     - vm_config.yml
   tasks:
     - name: Check if VirtualBox is installed
-      win_command: VBoxManage --version
+      win_command: VBoxManage --version 
       register: vbox_check
       ignore_errors: yes
 
     - name: Fail if VBoxManage is not found
-      fail:
-        msg: "VBoxManage is not installed or not found in the PATH."
-      when: vbox_check.rc != 0
+      fail: 
+        msg: "VBoxManage is not installed or not found in the PATH." # Fehlermeldung
+      when: vbox_check.rc != 0 # rc = return code
 
     - name: Download the Debian ISO if not already downloaded
-      win_get_url:
+      win_get_url: # Download-Modul für Windows
         url: "{{ iso_url }}"
         dest: "{{ iso_download_path }}"
       when: iso_url is defined
       register: download_iso
-      failed_when: download_iso.failed
+      failed_when: download_iso.failed 
       changed_when: download_iso.changed
 
     - name: Copy preseed.cfg to target machine
