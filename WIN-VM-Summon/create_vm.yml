@@ -1,0 +1,82 @@
+---
+- name: Create and configure Debian 12 VM on VirtualBox
+  hosts: windows
+  gather_facts: no
+  vars_files:
+    - vm_config.yml
+  tasks:
+    - name: Check if VirtualBox is installed
+      win_command: VBoxManage --version
+      register: vbox_check
+      ignore_errors: yes
+
+    - name: Fail if VBoxManage is not found
+      fail:
+        msg: "VBoxManage is not installed or not found in the PATH."
+      when: vbox_check.rc != 0
+
+    - name: Download the Debian ISO if not already downloaded
+      win_get_url:
+        url: "{{ iso_url }}"
+        dest: "{{ iso_download_path }}"
+      when: iso_url is defined
+      register: download_iso
+      failed_when: download_iso.failed
+      changed_when: download_iso.changed
+
+    - name: Copy preseed.cfg to target machine
+      win_copy:
+        src: "./preseed.cfg"  # Die Datei befindet sich im gleichen Verzeichnis wie das Playbook auf der Ansible-Maschine
+        dest: "C:/VirtualBox VMs/{{ vm_name }}/preseed.cfg"  # Zielpfad auf der Zielmaschine (Windows)
+      when: preseed_file is defined
+
+    - name: Create the VM
+      win_command: |
+        VBoxManage createvm --name "{{ vm_name }}" --ostype "{{ os_type }}" --register
+      register: create_vm
+
+    - name: Configure VM settings
+      win_command: |
+        VBoxManage modifyvm "{{ vm_name }}" --memory "{{ memory }}" --cpus "{{ cpus }}" --vram "{{ vram }}" --nic1 "{{ nic }}"
+      register: modify_vm
+
+    - name: Create a virtual hard disk for the VM
+      win_command: |
+        VBoxManage createhd --filename "{{ disk_filename }}" --size "{{ vdi_size }}"
+      register: create_disk
+
+    - name: Attach a virtual storage controller (SATA)
+      win_command: |
+        VBoxManage storagectl "{{ vm_name }}" --name "SATA Controller" --add sata --controller IntelAhci
+      register: add_controller
+
+    - name: Attach the virtual hard disk to the VM
+      win_command: |
+        VBoxManage storageattach "{{ vm_name }}" --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium "{{ disk_filename }}"
+      register: attach_disk
+
+    - name: Attach the ISO image to the VM for installation
+      win_command: |
+        VBoxManage storageattach "{{ vm_name }}" --storagectl "SATA Controller" --port 1 --device 0 --type dvddrive --medium "{{ iso_download_path }}"
+      register: attach_iso
+
+    - name: Attach the preseed file to the VM's boot command
+      win_command: |
+        VBoxManage modifyvm "{{ vm_name }}" --boot1 dvd --boot2 disk --boot3 none --boot4 none
+      register: attach_boot
+
+    - name: Start the VM
+      win_command: VBoxManage startvm "{{ vm_name }}" --type headless
+      register: start_vm
+
+    - name: Wait for the VM to be fully initialized
+      pause:
+        seconds: 30
+
+    - name: Retrieve the IP address of the VM
+      win_command: VBoxManage guestproperty get "{{ vm_name }}" "/VirtualBox/GuestInfo/Net/0/V4/IP"
+      register: vm_ip
+
+    - name: Display the IP address
+      debug:
+        msg: "The VM IP address is: {{ vm_ip.stdout }}"
