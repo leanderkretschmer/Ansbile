@@ -13,5 +13,5 @@ Set up a minecraft 1.21 server remotely
 
 ## Run the Summon Script
 
- ansible-playbook -i inventory.yml windows.yml
+ ansible-playbook -i inventory.yml (WIN)-VM-Summon.yml
 
