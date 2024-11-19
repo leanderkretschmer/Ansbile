@@ -1,0 +1,72 @@
+# playbook_virtualbox_debian.yml
+---
+- name: Erstelle und konfiguriere eine Debian 12 VM in VirtualBox
+  hosts: localhost
+  connection: local
+  gather_facts: no
+
+  vars:
+    vm_name: "Debian12VM"
+    vm_memory: 1024  
+    vm_vram: 16      
+    vm_iso_path: "/home/test/debian-12.iso"  
+    vm_disk_path: "/home/test/VM/Debian12VM.vdi"  
+    vm_static_ip: "0.0.0.33"
+    vm_gateway: "0.0.0.1"
+    vm_netmask: "255.255.255.0"
+
+  tasks:
+    - name: Erstelle eine neue VM
+      ansible.builtin.command:
+        cmd: >
+          VBoxManage createvm --name {{ vm_name }} --ostype "Debian_64" --register
+
+    - name: Setze Speicher und CPU für die VM
+      ansible.builtin.command:
+        cmd: >
+          VBoxManage modifyvm {{ vm_name }}
+          --memory {{ vm_memory }}
+          --vram {{ vm_vram }}
+          --cpus 1
+
+    - name: Erstelle eine virtuelle Festplatte
+      ansible.builtin.command:
+        cmd: >
+          VBoxManage createmedium disk --filename {{ vm_disk_path }} --size 10000 --format VDI
+
+    - name: Verbinde die Festplatte mit dem VM-Controller
+      ansible.builtin.command:
+        cmd: >
+          VBoxManage storagectl {{ vm_name }} --name "SATA Controller" --add sata --controller IntelAHCI
+      register: result
+
+    - name: Verbinde die Festplatte mit der VM
+      ansible.builtin.command:
+        cmd: >
+          VBoxManage storageattach {{ vm_name }} --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium {{ vm_disk_path }}
+
+    - name: Verbinde die ISO mit der VM als optisches Laufwerk
+      ansible.builtin.command:
+        cmd: >
+          VBoxManage storageattach {{ vm_name }} --storagectl "SATA Controller" --port 1 --device 0 --type dvddrive --medium {{ vm_iso_path }}
+
+    - name: Netzwerkeinstellungen konfigurieren
+      ansible.builtin.command:
+        cmd: >
+          VBoxManage modifyvm {{ vm_name }} --nic1 nat --nictype1 virtio
+
+    - name: Starte die VM
+      ansible.builtin.command:
+        cmd: VBoxManage startvm {{ vm_name }} --type headless
+
+    - name: Warte 60 Sekunden, bis die VM hochgefahren ist
+      ansible.builtin.pause:
+        seconds: 60
+
+    - name: Konfiguriere eine statische IP-Adresse und aktiviere Root-SSH
+      ansible.builtin.command:
+        cmd: ssh root@{{ vm_static_ip }} "echo 'network configuration' > /etc/network/interfaces"
+      
+    - name: Führe einen Neustart der Netzwerkschnittstelle durch, um die Änderungen zu aktivieren
+      ansible.builtin.command:
+        cmd: ssh root@{{ vm_static_ip }} "systemctl restart networking"
