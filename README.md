@@ -4,9 +4,9 @@
 This GIT is focused Around Ansible automations
 
 
-# ansible-minecraft
+## Ansible-minecraft
 Set up a minecraft 1.21 server remotely
 
-# Run the Script
+## Run the Script
 
  to run the script Type ansible-playbook -i hosts (playbook_name) *without ssh key* --ask-pass
