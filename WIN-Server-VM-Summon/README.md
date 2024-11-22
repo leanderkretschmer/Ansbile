@@ -12,6 +12,7 @@
     Set-Item WSMan:\localhost\client\trustedhosts -Value "*" -Force
 
 #### Firewall für WinRM öffnen
+*Mit Vorsicht Behandeln*
 
     New-NetFirewallRule -Name "WinRM" -DisplayName "Windows Remote Management" -Enabled True -Protocol TCP -Direction Inbound -LocalPort 5985
 
