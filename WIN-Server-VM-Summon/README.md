@@ -5,7 +5,7 @@
 
 ### WinRM aktivieren
 
-```Enable-PSRemoting -Force```
+    Enable-PSRemoting -Force
 
 ### Remote-Verbindungen über WinRM zulassen (verhindert Verbindungsprobleme)
 
