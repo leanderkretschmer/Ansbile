@@ -12,6 +12,9 @@
     # Firewall für WinRM öffnen
     New-NetFirewallRule -Name "WinRM" -DisplayName "Windows Remote Management" -Enabled True -Protocol TCP -Direction Inbound -LocalPort 5985
 
+## Configure Executing PC
+
+    pip install pywinrm
 
 
 
