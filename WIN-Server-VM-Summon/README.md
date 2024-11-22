@@ -9,11 +9,11 @@
 
 ### Remote-Verbindungen über WinRM zulassen (verhindert Verbindungsprobleme)
 
-```Set-Item WSMan:\localhost\client\trustedhosts -Value "*" -Force```
+    Set-Item WSMan:\localhost\client\trustedhosts -Value "*" -Force
 
 ### Firewall für WinRM öffnen
 
-```New-NetFirewallRule -Name "WinRM" -DisplayName "Windows Remote Management" -Enabled True -Protocol TCP -Direction Inbound -LocalPort 5985```
+    New-NetFirewallRule -Name "WinRM" -DisplayName "Windows Remote Management" -Enabled True -Protocol TCP -Direction Inbound -LocalPort 5985
 
 ## Configure Executing PC
 
