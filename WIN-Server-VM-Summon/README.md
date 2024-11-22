@@ -17,7 +17,7 @@
 
 ## How to Run the code 
 
-    If every other step is followed you just need to run this code 
+If every other step is followed you just need to run this code 
         ```ansible-playbook -i hosts.md create_vm.yml```
 
 
